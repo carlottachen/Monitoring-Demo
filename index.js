@@ -11,10 +11,23 @@ const rollbar = new Rollbar({
     captureUnhandledRejections: true,
 })
 
+let students = [];
+
+//top level middleware
+app.use(rollbar.errorHandler()); //send any errors to rollbar
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/index.html'));
     //logs it when someone goes to our webpage
     rollbar.info('html file served successfully');
+})
+
+app.post('/api/student', (req, res) => {
+    let { name } = req.body;
+    name = name.trim(); //get rid of whitespace for uniformity
+    students.push(name);
+    rollbar.log('Student added successfully', { aurthor: "Carlotta", type: 'manual entry' });
+    res.status(200).send(students);
 })
 
 const port = process.env.PORT || 4545
